@@ -28,17 +28,9 @@ Q) Quit
             courses_with_specific_trainer(course_data)
         if answer == '4':
             most_popular_trainer(course_data, employee_data)
-            # TODO (10 p): Print the name of the trainer who
-            # holds most courses in the future.
-            # TODO (15 p): Also print out the phone number
-            # of that trainer.
-            # Note: The trainer is an employee of ProAgile,
-            # and public data about employees are available
-            # from this API endpoint:
-            #    https://proagile.se/api/publicEmployees
-
         if answer.upper() == 'Q':
             print("Good-bye and thank you for the fish!")
+            print("42 is the answer.")
             return
 
 
@@ -47,7 +39,7 @@ def list_of_trainers(course_data):
     """
     List all trainers sorted by family name (A-Z)
     :param course_data:
-    :return:
+    :return: Prints trainer names (string)
     """
     # Sort the trainers before printing them.
     print("The trainers at ProAgile are:")
@@ -65,7 +57,7 @@ def list_next_five(course_data):
     """
     List next five courses sorted by date
     :param course_data:
-    :return:
+    :return: Prints string of next 5 courses sorted on date.
     """
     print("Next 5 courses sorted by date:")
     # lambda sorterar här på startdatum
@@ -80,7 +72,7 @@ def courses_with_specific_trainer(course_data):
     """
     Lists courses with specific trainer, also when part of name is inserted
     :param course_data:
-    :return: printed string of course names and dates
+    :return: printed string of trainer, course names and dates
     """
     # E.g. if the user enters "fredrik", all courses
     # held by "Fredrik Wendt" will be listed.
