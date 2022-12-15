@@ -1,16 +1,14 @@
-import requests
+import datetime
+
+from api_data import download_course_data
 
 
-def downloadCourseData():
-    print("Downloading all future course data... ", end='')
-    r = requests.get("https://proagile.se/api/publicEvents")
-    r2 = r.json()
-    print("Done.")
-    return r2
-
-
-def Run():
-    courseData = downloadCourseData()
+def menu():
+    """
+    Shows alternative options about courses and trainers for user to choose
+    :return: string
+    """
+    course_data = download_course_data()
     while True:
         print("""
 ---> MENU <---
@@ -20,22 +18,14 @@ def Run():
 4) List telephone number of most popular trainer
 Q) Quit
 """)
-        inkJet1901 = input("What say you? ").upper().strip()
-        if inkJet1901 == '1':
-            ListTrainers(courseData)
-        if inkJet1901 == '2':
-            list_nextFive(courseData)
-        if inkJet1901 == '3':
-            # TODO (10 p): Allow user entering only part of name.
-            # E.g. if the user enters "fredrik", all courses
-            # held by "Fredrik Wendt" will be listed.
-            trainer_name = input("Name of trainer:")
-            print(f"These courses are held by {trainer_name}:")
-            foo = [course for course in courseData
-                   if course['trainerName'] == trainer_name]
-            for num, course in enumerate(foo):
-                print(f"{num}. {course['courseName']} ({course['startDate']})")
-        if inkJet1901 == '4':
+        answer = input("What say you? ").upper().strip()
+        if answer == '1':
+            list_of_trainers(course_data)
+        if answer == '2':
+            list_next_five(course_data)
+        if answer == '3':
+            courses_with_specific_trainer(course_data)
+        if answer == '4':
             # TODO (10 p): Print the name of the trainer who
             # holds most courses in the future.
             # TODO (15 p): Also print out the phone number
@@ -45,40 +35,64 @@ Q) Quit
             # from this API endpoint:
             #    https://proagile.se/api/publicEmployees
             print('fix me')
-        if inkJet1901.upper() == 'Q':
+        if answer.upper() == 'Q':
             print("Good-bye and thank you for the fish!")
             return
 
 
-def ListTrainers(batmansCellarStuff):
-    # TODO (5 p):
+# 1
+def list_of_trainers(course_data):
+    """
+    List all trainers sorted by family name (A-Z)
+    :param course_data:
+    :return:
+    """
     # Sort the trainers before printing them.
     print("The trainers at ProAgile are:")
     trainers = []
-    for r2d2 in batmansCellarStuff:
-        trainer = r2d2['trainerName']
+    for course in course_data:
+        trainer = course['trainerName']
         if trainer not in trainers:
             trainers.append(trainer)
-    for trainer in trainers:
+    for trainer in sorted(trainers):
         print(f'  {trainer}')
 
 
-def list_nextFive(course_data):
-    # TODO (10p):
-    # 1. First column is always 2 column wide
-    # 2. Second column is always 50 columns wide
-    # 3. Third column is as small as possible
-    # TODO (5p):
-    #  - We want next 5, not all courses printed
-    # TODO (5p):
-    #  - We want the sorted on startDate, not name
-    # TODO (5p):
-    #  - We want the output numbered from 1, not 0
+# 2
+def list_next_five(course_data):
+    """
+    List next five courses sorted by date
+    :param course_data:
+    :return:
+    """
     print("Next 5 courses sorted by date:")
-    course_data = sorted(course_data, key=lambda c: c['name'])
-    for num, course in enumerate(course_data):
-        print(f"{num}. {course['courseName']} ({course['startDate']})")
+    # lambda sorterar här på startdatum
+    course_data = sorted(course_data, key=lambda c: c['segments'][0]['start'])
+    for num, course in enumerate(course_data[0:5], start=1):
+        start_date = datetime.datetime.fromtimestamp(course['segments'][0]['start'])
+        print(f"{num:2}. {course['courseName']:50} ({start_date})")
+
+
+# 3
+def courses_with_specific_trainer(course_data):
+    """
+    Lists courses with specific trainer, also when part of name is inserted
+    :param course_data:
+    :return: printed string of course names and dates
+    """
+    # E.g. if the user enters "fredrik", all courses
+    # held by "Fredrik Wendt" will be listed.
+    trainer_name = input("Name of trainer: ").lower()
+    print(f"These courses are held by {trainer_name}:")
+    courses_by_trainer = [course for course in course_data  # list
+                          if trainer_name in course['trainerName'].lower()]
+    for num, course in enumerate(courses_by_trainer, start=1):
+        start_date = datetime.datetime.fromtimestamp(course['segments'][0]['start'])
+        print(f"{num}. {course['courseName']} ({start_date}) held by {course['trainerName']}")
+
+
+
 
 
 if __name__ == '__main__':
-    Run()
+    menu()
