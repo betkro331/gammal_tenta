@@ -1,6 +1,6 @@
 import datetime
 
-from api_data import download_course_data
+from api_data import *
 
 
 def menu():
@@ -9,6 +9,7 @@ def menu():
     :return: string
     """
     course_data = download_course_data()
+    employee_data = download_employee_data()
     while True:
         print("""
 ---> MENU <---
@@ -26,6 +27,7 @@ Q) Quit
         if answer == '3':
             courses_with_specific_trainer(course_data)
         if answer == '4':
+            most_popular_trainer(course_data, employee_data)
             # TODO (10 p): Print the name of the trainer who
             # holds most courses in the future.
             # TODO (15 p): Also print out the phone number
@@ -34,7 +36,7 @@ Q) Quit
             # and public data about employees are available
             # from this API endpoint:
             #    https://proagile.se/api/publicEmployees
-            print('fix me')
+
         if answer.upper() == 'Q':
             print("Good-bye and thank you for the fish!")
             return
@@ -91,7 +93,21 @@ def courses_with_specific_trainer(course_data):
         print(f"{num}. {course['courseName']} ({start_date}) held by {course['trainerName']}")
 
 
+# 4
+def most_popular_trainer(course_data, employee_data):
+    """
+    Extracting trainer that holds most courses
+    :param course_data: list of courses
+    :param employee_data: list of employees
+    :return: Print of most popular trainer with his/her phone number
+    """
+    names = [course['trainerName'] for course in course_data]
+    most_popular = max(set(names), key=names.count)
+    # print(f"{most_popular}")  # = Fredrik Wendt
 
+    for employee in employee_data:
+        if employee['name'] == 'Fredrik Wendt':
+            print(f"Most popular trainer is: {most_popular}, phone: {employee['phone']} ")
 
 
 if __name__ == '__main__':
